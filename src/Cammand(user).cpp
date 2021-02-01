@@ -886,8 +886,8 @@ void Run_Program(string &a){
     else if(type == "report"){
         string tp;
         for (++i; i < len && a[i] != ' '; ++i) tp += a[i];
-        if(!USERONLINE.empty()&&USERONLINE.top().priority == 7) {
-            if (tp == "employee") {
+        if(!USERONLINE.empty() && USERONLINE.top().priority >= 3 ) {
+            if (tp == "employee" && USERONLINE.top().priority == 7) {
                 fstream fok;
                 fok.open(reportemployeefile, ios::out | ios::in | ios::binary);
                 fok.seekg(0,ios::end);
@@ -921,7 +921,7 @@ void Run_Program(string &a){
                     }
                     cnt += sizeof(reporte);
                 }
-            } else if (tp == "finance") {
+            } else if (tp == "finance" && USERONLINE.top().priority == 7) {
                 fstream fok;
                 fok.open(reportfinancefile, ios::out | ios::in | ios::binary);
                 fok.seekg(0,ios::end);
