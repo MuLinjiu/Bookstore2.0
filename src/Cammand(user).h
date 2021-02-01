@@ -5,6 +5,9 @@
 #ifndef MAIN_CPP_CAMMAND_USER_H
 #define MAIN_CPP_CAMMAND_USER_H
 #include "nodelist.h"
+#define reportfinancefile "reportfinance.dat"
+#define reportemployeefile "reportemployee.dat"
+#define LOGfile "log.dat"
 #define totlemoneyfile "totalmoney.dat"
 #define transactionfile "transaction.dat"//记录每一笔交易
 #define bookfile "book_file.dat"//记录书的文件
@@ -57,7 +60,7 @@ void register_(user &U);
 
 void addacount(user &a);
 
-void deleteaccount(const char* userid);
+void deleteaccount(string userid);
 
 void changepassword(const char* user_id,const char * newpas,const char* oldpas = "");
 

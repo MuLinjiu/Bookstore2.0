@@ -26,7 +26,7 @@ user::user(const string &userid1, const string &pass, const string &name1, int p
     priority = pri;
 }
 
-void login(const string &userid1,string password ){
+void LOGin(const string &userid1,string password ){
     if(strlen(password.c_str()) == 0){
         vector<int>possibleoffset;
         useridlist.findnode(userid1,possibleoffset);
@@ -55,8 +55,8 @@ void login(const string &userid1,string password ){
     }
 }
 
-void logout(){
-    if(USERONLINE.empty())throw("emptystack when log out");
+void LOGout(){
+    if(USERONLINE.empty())throw("emptystack when LOG out");
     else USERONLINE.pop();
 }
 
@@ -67,6 +67,12 @@ void register_(user & x){
     int offset = my_write<user>(USER,x);//缺省
     node a(offset,x.user_id);
     useridlist.addnode(a);
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck("","register new account",0);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
 void addaccount(user &x){
@@ -76,9 +82,22 @@ void addaccount(user &x){
     int offset = my_write<user>(USER,x);//缺省
     node a(offset,x.user_id);
     useridlist.addnode(a);
+    fstream fin;
+    fin.open(reportemployeefile,ios::in | ios::out | ios::binary);
+    string f = x.name;
+    reporte s(USERONLINE.top().name,"addaccount : "+ f,0);
+    fin.seekp(0,ios::end);
+    fin.write(reinterpret_cast<char*>(&s),sizeof(reporte));
+    fin.close();
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck(USERONLINE.top().name,"add new account ",0);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
-void deleteaccount(const string & user_id){
+void deleteaccount(string user_id){
     if(user_id == "root")throw("error");
     vector<int>possibleoffset;
     useridlist.findnode(user_id,possibleoffset);
@@ -86,6 +105,18 @@ void deleteaccount(const string & user_id){
     //user tmp(my_read<user>(useridfile,possibleoffset[0]));
     node newnode(possibleoffset[0],user_id);
     useridlist.deletenode(newnode);
+    fstream fin;
+    fin.open(reportemployeefile,ios::in | ios::out | ios::binary);
+    reporte s(USERONLINE.top().name,"deleteaccount : "+ user_id,0);
+    fin.seekp(0,ios::end);
+    fin.write(reinterpret_cast<char*>(&s),sizeof(reporte));
+    fin.close();
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck(USERONLINE.top().name,"delete account : " + user_id,0);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
 void changepassword(const char* user_id,const char * newpas,const char* oldpas ){
@@ -102,6 +133,12 @@ void changepassword(const char* user_id,const char * newpas,const char* oldpas )
     //if(strcmp(tmp.password,newpas) == 0)throw("o");
     strcpy(tmp.password,newpas);
     my_write<user>(USER,tmp,possibleoffset[0]);
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck(USERONLINE.top().name,"change password",0);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
 void selectbook(const string & ISBN1){
@@ -159,6 +196,27 @@ void import(int quantity1, double totleprice ){
         fout.seekp(0);
         fout.write(reinterpret_cast<char*>(&tmp2),sizeof(totlemoney));//更新总支出
         fout.close();
+        fstream fin1;
+        fin1.open(reportemployeefile,ios::in | ios::out | ios::binary);
+        const string f = tmp.name;
+        char g = quantity1 +'0';
+        reporte s(USERONLINE.top().name,"import",totleprice);
+        fin1.seekp(0,ios::end);
+        fin1.write(reinterpret_cast<char*>(&s),sizeof(reporte));
+        fin1.close();
+        fstream fx;
+        fx.open(reportfinancefile,ios::in|ios::out | ios::binary);
+        fx.seekp(0,ios::end);
+        string bookname = tmp.name;
+        reportf c("import + "+bookname +" - ",totleprice);
+        fx.write(reinterpret_cast<char*>(&c),sizeof(reportf));
+        fx.close();
+        fstream fo;
+        fo.open(LOGfile,ios::in | ios::out | ios::binary);
+        fo.seekp(0,ios::end);
+        LOG whatfuck(USERONLINE.top().name,"import + "+bookname +" - ",totleprice);
+        fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+        fo.close();
     }
     else throw("error");
 }
@@ -196,6 +254,27 @@ void buy(const string &ISBN1,int quantity1){
     fout.write(reinterpret_cast<char*>(&tmp2),sizeof(totlemoney));//更新总支出
     fout.close();
     printf("%.2lf\n",quantity1 * tmpbook.price);
+    fstream fin1;
+    fin1.open(reportemployeefile,ios::in | ios::out | ios::binary);
+    string f = tmpbook.name;
+    //char g = quantity1 + '0';
+    reporte s(USERONLINE.top().name,"buy",quantity1 * tmpbook.price);
+    fin1.seekp(0,ios::end);
+    fin1.write(reinterpret_cast<char*>(&s),sizeof(reporte));
+    fin1.close();
+    fstream fx;
+    fx.open(reportfinancefile,ios::in|ios::out | ios::binary);
+    fx.seekp(0,ios::end);
+    string bookname = tmpbook.name;
+    reportf c("import + " + bookname + " + ",quantity1 * tmpbook.price);
+    fx.write(reinterpret_cast<char*>(&c),sizeof(reportf));
+    fx.close();
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck(USERONLINE.top().name,"buy + "+bookname +" + ",quantity1 * tmpbook.price);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
 
@@ -369,6 +448,19 @@ void modifyISBN(const string &key){
     fin.seekp(offset);
     fin.write(reinterpret_cast<char*>(&tmp),sizeof(Book));
     fin.close();
+    fstream fin1;
+    fin1.open(reportemployeefile,ios::in | ios::out | ios::binary);
+    //string f = tmp.name;
+    reporte s(USERONLINE.top().name,"modify ISBN" + key,0);
+    fin1.seekp(0,ios::end);
+    fin1.write(reinterpret_cast<char*>(&s),sizeof(reporte));
+    fin1.close();
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck(USERONLINE.top().name,"modify ISBN : "+key,0);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
 
@@ -396,6 +488,18 @@ void modifyNAME(const string &key){
     fin.seekp(offset);
     fin.write(reinterpret_cast<char*>(&tmp),sizeof(Book));
     fin.close();
+    fstream fin1;
+    fin1.open(reportemployeefile,ios::in | ios::out | ios::binary);
+    reporte s(USERONLINE.top().name,"modify name " + key,0);
+    fin1.seekp(0,ios::end);
+    fin1.write(reinterpret_cast<char*>(&s),sizeof(reporte));
+    fin1.close();
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck(USERONLINE.top().name,"modify NAME : "+key,0);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
 
@@ -425,6 +529,18 @@ void modifyAUTHOR(const string &key){
     fin.seekp(offset);
     fin.write(reinterpret_cast<char*>(&tmp),sizeof(Book));
     fin.close();
+    fstream fin1;
+    fin1.open(reportemployeefile,ios::in | ios::out | ios::binary);
+    reporte s(USERONLINE.top().name,"modify author " + key,0);
+    fin1.seekp(0,ios::end);
+    fin1.write(reinterpret_cast<char*>(&s),sizeof(reporte));
+    fin1.close();
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck(USERONLINE.top().name,"modify author " + key,0);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
 
@@ -459,6 +575,18 @@ void modifyKEYWORD(const string &command){
     strcpy(tmp.key,command.c_str());
     fin.seekp(offset);
     fin.write(reinterpret_cast<char*>(&tmp),sizeof(Book));
+    fstream fin1;
+    fin1.open(reportemployeefile,ios::in | ios::out | ios::binary);
+    reporte s(USERONLINE.top().name,"modify keyword " + key,0);
+    fin1.seekp(0,ios::end);
+    fin1.write(reinterpret_cast<char*>(&s),sizeof(reporte));
+    fin1.close();
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck(USERONLINE.top().name,"modify keyword " + key,0);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
 
@@ -474,6 +602,18 @@ void modifyPRICEC(double price){
     fin.seekp(offset);
     fin.write(reinterpret_cast<char*>(&tmp),sizeof(Book));
     fin.close();
+    fstream fin1;
+    fin1.open(reportemployeefile,ios::in | ios::out | ios::binary);
+    reporte s(USERONLINE.top().name,"modify price",0);
+    fin1.seekp(0,ios::end);
+    fin1.write(reinterpret_cast<char*>(&s),sizeof(reporte));
+    fin1.close();
+    fstream fo;
+    fo.open(LOGfile,ios::in | ios::out | ios::binary);
+    fo.seekp(0,ios::end);
+    LOG whatfuck(USERONLINE.top().name,"modify price ",price);
+    fo.write(reinterpret_cast<char*>(&whatfuck),sizeof(LOG));
+    fo.close();
 }
 
 
@@ -491,7 +631,7 @@ void Run_Program(string &a){
         for (++i; i < len && a[i] != ' '; ++i) passwd += a[i];
         for (; i < len && a[i] == ' '; ++i);
         if(i >= len && checkuser_id(user_id) && checkpasswd2(passwd) ){
-            login(user_id,passwd);
+            LOGin(user_id,passwd);
             return;
         }else{
             throw("error");
@@ -501,7 +641,7 @@ void Run_Program(string &a){
     else if(type == "logout"){
         if(USERONLINE.empty())throw("e");
         for (; i < len && a[i] == ' '; ++i);
-        if(i >= len )logout();
+        if(i >= len )LOGout();
         return;
     }
     else if(type == "useradd"){
@@ -743,8 +883,80 @@ void Run_Program(string &a){
             }
         } else throw("error");
     }
-    else if(type == "report"){}
-    else if(type == "log"){}
+    else if(type == "report"){
+        string tp;
+        for (++i; i < len && a[i] != ' '; ++i) tp += a[i];
+        if(!USERONLINE.empty()&&USERONLINE.top().priority == 7) {
+            if (tp == "employee") {
+                fstream fok;
+                fok.open(reportemployeefile, ios::out | ios::in | ios::binary);
+                fok.seekg(0,ios::end);
+                int end = fok.tellg();
+                int cnt = 0;
+                fok.seekg(0);
+                while (cnt != end) {
+                    reporte tmp;
+                    fok.read(reinterpret_cast<char *>(&tmp), sizeof(reporte));
+                    if(tmp.money == 0) {
+                        cout << tmp.name << " " << tmp.action << endl;
+                    }
+                    else cout<< tmp.name << " " <<tmp.action<<" "<<tmp.money<<endl;
+                    cnt += sizeof(reporte);
+                }
+            } else if (tp == "myself") {
+                fstream fok;
+                fok.open(reportemployeefile, ios::out | ios::in | ios::binary);
+                fok.seekg(0,ios::end);
+                int end = fok.tellg();
+                int cnt = 0;
+                fok.seekg(0);
+                while (cnt != end) {
+                    reporte tmp;
+                    fok.read(reinterpret_cast<char *>(&tmp), sizeof(reporte));
+                    if (strcmp(tmp.name, USERONLINE.top().name) == 0) {
+                        if(tmp.money == 0) {
+                            cout << "I" << " " << tmp.action << endl;
+                        }
+                        else cout<< tmp.name << " " <<tmp.action<<" "<<tmp.money<<endl;
+                    }
+                    cnt += sizeof(reporte);
+                }
+            } else if (tp == "finance") {
+                fstream fok;
+                fok.open(reportfinancefile, ios::out | ios::in | ios::binary);
+                fok.seekg(0,ios::end);
+                int end = fok.tellg();
+                int cnt = 0;
+                fok.seekg(0);
+                while (cnt != end) {
+                    reportf tmp;
+                    fok.read(reinterpret_cast<char *>(&tmp), sizeof(reportf));
+                    cout << tmp.action << abs(tmp.money) << endl;
+                    cnt += sizeof(reportf);
+                }
+            }
+        }
+        else throw("w");
+    }
+    else if(type == "log"){
+        if(!USERONLINE.empty() && USERONLINE.top().priority == 7) {
+            fstream fok;
+            fok.open(LOGfile, ios::out | ios::in | ios::binary);
+            fok.seekg(0, ios::end);
+            int end = fok.tellg();
+            int cnt = 0;
+            fok.seekg(0);
+            while (cnt != end) {
+                LOG tmp;
+                fok.read(reinterpret_cast<char *>(&tmp), sizeof(LOG));
+                if (tmp.money == 0) {
+                    cout << tmp.name << " " << tmp.action << endl;
+                } else cout << tmp.name << " " << tmp.action << " " << abs(tmp.money) << endl;
+                cnt += sizeof(LOG);
+            }
+        }
+        else throw("w");
+    }
     else if(type == "exit" || type == "quit" ){
         fstream fin,fout;
         exit(0);
@@ -776,6 +988,12 @@ void clear(){
     fin.open(namefile,ios::out);
     fin.close();
     fin.open(keyfile,ios::out);
+    fin.close();
+    fin.open(reportemployeefile,ios::out);
+    fin.close();
+    fin.open(reportfinancefile,ios::out);
+    fin.close();
+    fin.open(LOGfile,ios::out);
     fin.close();
     user root("root","sjtu","root",7);
     int offset = my_write<user>(USER,root);

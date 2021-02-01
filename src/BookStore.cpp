@@ -73,6 +73,12 @@ void initialize(){
         fin.close();
         fin.open(keyfile,ios::out);
         fin.close();
+        fin.open(reportemployeefile,ios::out);
+        fin.close();
+        fin.open(reportfinancefile,ios::out);
+        fin.close();
+        fin.open(LOGfile,ios::out);
+        fin.close();
         user root("root","sjtu","root",7);
         int offset = my_write<user>(USER,root);
         node tmp(offset,"root");
@@ -88,4 +94,32 @@ void initialize(){
     }else{
         fin.close();
     }
+}
+
+
+reporte::reporte() = default;
+
+
+reporte::reporte(const string& name1,const string& action1,double mo){
+    strcpy(name,name1.c_str());
+    strcpy(action,action1.c_str());
+    money = mo;
+}
+
+
+reportf::reportf() = default;
+
+
+
+reportf::reportf(const string &a,double n) {
+    strcpy(action,a.c_str());
+    money = n;
+}
+
+
+LOG::LOG() = default;
+LOG::LOG(const string& na,const string& ac, double mo) {
+    strcpy(name,na.c_str());
+    strcpy(action,ac.c_str());
+    money = mo;
 }

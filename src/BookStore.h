@@ -41,6 +41,38 @@ public:
 };
 
 
+class reporte{
+public:
+    char name[60] = "";
+    char action[200] = "";
+    double money = 0;
+    reporte();
+    reporte(const string& name1,const string& action1,double mo);
+};
+
+class reportf{
+public:
+    char action[200] = "";
+    double money = 0;
+    reportf();
+    reportf(const string &a,double n);
+};
+
+
+
+class LOG{
+public:
+    char name[60] = "";
+    char action[200] = "";
+    double money = 0;
+    LOG();
+    LOG(const string& na,const string&  ac, double mo);
+};
+
+
+
+
+
 void initialize();
 
 
