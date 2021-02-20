@@ -7,7 +7,6 @@
 #include <iomanip>
 #include <algorithm>
 #include <cstring>
-#include <cmath>
 #include <stack>
 
 nodelist authorlist(authorfile);
